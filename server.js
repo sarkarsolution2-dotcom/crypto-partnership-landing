@@ -33,6 +33,21 @@ const upload = multer({
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
+function formatPhone(raw) {
+  // Normalize to +91XXXXXXXXXX regardless of input format
+  let digits = String(raw).replace(/\D/g, '');
+  if (digits.length === 10) {
+    digits = '91' + digits;
+  } else if (digits.length === 11 && digits.startsWith('0')) {
+    digits = '91' + digits.slice(1);
+  } else if (digits.length === 12 && digits.startsWith('91')) {
+    // already correct
+  } else if (digits.length === 13 && digits.startsWith('91')) {
+    digits = digits.slice(0, 12);
+  }
+  return '+' + digits;
+}
+
 function escape(s) {
   // Escape MarkdownV2 special characters. Hyphen must be last in the class.
   return String(s).replace(/[_*\[\]()~`>#+=|{}.!-]/g, '\\$&');
@@ -105,12 +120,14 @@ app.post('/submit', upload.single('screenshot'), async (req, res) => {
       return res.status(400).json({ error: 'Screenshot is required.' });
     }
 
+    const phoneFormatted = formatPhone(phone);
+
     // Forward to Telegram
-    await sendToTelegram(name, phone, exchange);
+    await sendToTelegram(name, phoneFormatted, exchange);
 
     const caption =
       `📸 *P2P Trade History*\n` +
-      `👤 ${escape(name)}  ·  📞 ${escape(phone)}  ·  🏦 ${escape(exchange)}`;
+      `👤 ${escape(name)}  ·  📞 ${escape(phoneFormatted)}  ·  🏦 ${escape(exchange)}`;
     await sendScreenshotToTelegram(file.path, caption);
 
     // Clean up the uploaded file
