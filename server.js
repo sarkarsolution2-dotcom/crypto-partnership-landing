@@ -34,8 +34,8 @@ const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
 
 function escape(s) {
-  // Escape MarkdownV2 special characters for Telegram
-  return String(s).replace(/[_*\[\]()~`>#+\-=|{}.!]/g, '\\$&');
+  // Escape MarkdownV2 special characters. Hyphen must be last in the class.
+  return String(s).replace(/[_*\[\]()~`>#+=|{}.!-]/g, '\\$&');
 }
 
 async function sendToTelegram(name, phone, exchange) {
