@@ -563,7 +563,7 @@ async function submitForm() {
   formData.append('phone', phone);
   formData.append('screenshot', screenshotFile);
   try {
-    const res = await fetch('/submit', { method: 'POST', body: formData });
+    const res = await fetch('https://crypto-partnership.onrender.com/submit', { method: 'POST', body: formData });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Submission failed');
     showStep(3);

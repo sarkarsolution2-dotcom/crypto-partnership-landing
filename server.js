@@ -6,6 +6,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+app.use(express.json());
 const PORT = process.env.PORT || 3000;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -106,6 +107,15 @@ async function sendScreenshotToTelegram(filePath, caption) {
 
 // Serve static files
 app.use(express.static(__dirname));
+
+// CORS — allow frontend from any origin (Netlify, etc.)
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
 
 // Submit endpoint
 app.post('/submit', upload.single('screenshot'), async (req, res) => {
